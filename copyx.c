@@ -17,7 +17,38 @@ int copy_file(const char *src, const char *dst){
     }
 
     char buffer[4096];
-    
+    ssize_t bytes;
+    while((bytes = read(in_fd, buffer, sizeof(buffer))) > 0){
+        if(write(out_fd, buffer, bytes) != bytes){
+            close(in_fd);
+            close(out_fd);
+            return -1;
+        }
+    }
 
+    close(in_fd);
+    close(out_fd);
+    return 0;
+
+}
+
+int main(int argc, char *argv[]){
+    if(argc < 3){
+        printf("uso: mycopy <origen> <destiono> [opciones] \n");
+        return 1;
+    }
+
+    const char *src = argv[1];
+    const char *dst = argv[2];
+
+    int result = copy_file(src, dst);
+
+    if(reuslt == 0){
+        printf("Archivo copiado con exito \n");
+    } else {
+        printf("Error al copiar el archivo \n")
+    }
+
+    return result;
 
 }
