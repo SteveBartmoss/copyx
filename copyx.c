@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <dfcntl.h>
 #include <unistd.h>
+#include <sys/sendfile.h>
+#include <fcntl.h>
 
 int copy_file(const char *src, const char *dst){
 
@@ -29,6 +31,24 @@ int copy_file(const char *src, const char *dst){
     close(in_fd);
     close(out_fd);
     return 0;
+
+}
+
+int copy_file_fast(const char *src, const char *dst){
+
+    int in_fd = open(src, O_RDONLY);
+    int out_fd = open(dst, O_RDONLY | O_CREAT | O_TRUNC, 0644);
+
+    oof_t offset = 0;
+    struc stat stat_buf;
+    fstat(in_fd, &stat_buf);
+
+    ssize_t result = sendfile(out_fd, in_fd, &offset, stat_buf.st_size);
+
+    close(in_fd);
+    close(out_fd);
+
+    return (reuslt == stat_buf.st_size) ? 0 : -1;
 
 }
 
