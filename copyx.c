@@ -8,7 +8,6 @@
 #include <dirent.h>
 #include <string.h>
 
-// Método clásico
 int copy_file(const char *src, const char *dst) {
     int in_fd = open(src, O_RDONLY);
     if (in_fd < 0) return -1;
@@ -34,7 +33,6 @@ int copy_file(const char *src, const char *dst) {
     return 0;
 }
 
-// sendfile()
 int copy_file_fast(const char *src, const char *dst) {
     int in_fd = open(src, O_RDONLY);
     int out_fd = open(dst, O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -51,7 +49,6 @@ int copy_file_fast(const char *src, const char *dst) {
     return (result == stat_buf.st_size) ? 0 : -1;
 }
 
-// copy_file_range()
 int copy_file_fast_range(const char *src, const char *dst) {
     int in_fd = open(src, O_RDONLY);
     int out_fd = open(dst, O_WRONLY | O_CREAT | O_TRUNC, 0644);
