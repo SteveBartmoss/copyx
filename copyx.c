@@ -8,7 +8,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
-#include "cadena.h"
+#include "copyx.h"
 
 // Método clásico
 int copy_file(const char *src, const char *dst) {
