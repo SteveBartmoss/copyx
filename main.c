@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <string.h>
-#include "cadena.h"
+#include "copyx.h"
 
 int main(int argc, char *argv[]) { 
     if (argc < 3) { 
