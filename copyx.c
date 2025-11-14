@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <sys/sendfile.h>
 #include <sys/stat.h>
+#include <dirent.h>
+#include <string.h>
 
 // Método clásico
 int copy_file(const char *src, const char *dst) {
@@ -65,22 +67,70 @@ int copy_file_fast_range(const char *src, const char *dst) {
     return (result == st.st_size) ? 0 : -1;
 }
 
-int main(int argc, char *argv[]) {
-    if (argc < 3) {
-        printf("Uso: mycopy <origen> <destino>\n");
-        return 1;
+int copy_strategy( const char *src, const char *dst) { 
+    int result = copy_file_fast_range(src, dst); 
+    if(result == -1 && errno == ENOSYS) { 
+        result = copy_file_fast(src, dst); 
+        if(result == -1 && errno == ENOSYS) { result = copy_file(src, dst); 
+        } 
+    } 
+    return result; 
+}
+
+int copi_recursive(const char *src, const char *dst) {
+    
+    struct stat info;
+
+    if(stat(src, &info) < 0) return -1;
+
+
+    if(S_ISREG(info.st_mode)){
+        return copy_strategy(src, dst);
     }
 
-    const char *src = argv[1];
-    const char *dst = argv[2];
+    if(S_ISDIR(info.st_mode)){
 
-    int result = copy_file(src, dst);
+        mkdir(dst, 0755);
 
-    if (result == 0)
-        printf("Archivo copiado con éxito.\n");
-    else
-        printf("Error al copiar el archivo.\n");
+        DIR *dir = opendir(src);
 
-    return result;
+        if(!dir) = return -1;
+
+        struct dirent *entry;
+        char srcPath[1024];
+        char dstPath[1024];
+
+        while((entry = readdir(dir)) != NULL){
+
+            if(strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) 
+                continue;
+
+            snprintf(srcPath, sizeof(srcPath), "%s/%s", src, entry->d_name);
+
+            snprintf(dstPath, sizeof(dstPath), "%s/%s", dst, entry->d_name);
+
+            copy_recursive(srcPath, dstPath);
+        }
+
+        closedir(dir)
+
+        return 0;
+        
+    }
+
+    return -1;
+
+}
+
+int main(int argc, char *argv[]) { 
+    if (argc < 3) { 
+        printf("Uso: mycopy <origen> <destino>\n"); return 1; 
+    } 
+    
+    const char *src = argv[1]; 
+    const char *dst = argv[2]; 
+    int result = copy_strategy(src, dst); 
+    if (result == 0) printf("Archivo copiado con éxito.\n"); 
+    else printf("Error al copiar el archivo.\n"); return result; 
 }
 
