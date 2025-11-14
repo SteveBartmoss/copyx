@@ -7,6 +7,8 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <string.h>
+#include <errno.h>
+#include "cadena.h"
 
 // Método clásico
 int copy_file(const char *src, const char *dst) {
@@ -75,62 +77,5 @@ int copy_strategy( const char *src, const char *dst) {
         } 
     } 
     return result; 
-}
-
-int copi_recursive(const char *src, const char *dst) {
-    
-    struct stat info;
-
-    if(stat(src, &info) < 0) return -1;
-
-
-    if(S_ISREG(info.st_mode)){
-        return copy_strategy(src, dst);
-    }
-
-    if(S_ISDIR(info.st_mode)){
-
-        mkdir(dst, 0755);
-
-        DIR *dir = opendir(src);
-
-        if(!dir) = return -1;
-
-        struct dirent *entry;
-        char srcPath[1024];
-        char dstPath[1024];
-
-        while((entry = readdir(dir)) != NULL){
-
-            if(strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) 
-                continue;
-
-            snprintf(srcPath, sizeof(srcPath), "%s/%s", src, entry->d_name);
-
-            snprintf(dstPath, sizeof(dstPath), "%s/%s", dst, entry->d_name);
-
-            copy_recursive(srcPath, dstPath);
-        }
-
-        closedir(dir)
-
-        return 0;
-        
-    }
-
-    return -1;
-
-}
-
-int main(int argc, char *argv[]) { 
-    if (argc < 3) { 
-        printf("Uso: mycopy <origen> <destino>\n"); return 1; 
-    } 
-    
-    const char *src = argv[1]; 
-    const char *dst = argv[2]; 
-    int result = copy_strategy(src, dst); 
-    if (result == 0) printf("Archivo copiado con éxito.\n"); 
-    else printf("Error al copiar el archivo.\n"); return result; 
 }
 
